@@ -283,20 +283,16 @@ async function startScan() {
     document.getElementById('videoContainer').style.display = 'block';
 
     codeReader = new ZXing.BrowserQRCodeReader();
-
-    const videoInputDevices = await ZXing.BrowserCodeReader.listVideoInputDevices();
-    // 背面カメラを優先選択
-    const selectedDevice = videoInputDevices.find(d =>
-      d.label.toLowerCase().includes('back') ||
-      d.label.toLowerCase().includes('rear') ||
-      d.label.includes('背面')
-    ) || videoInputDevices[videoInputDevices.length - 1];
-
     scanning = true;
     document.getElementById('scanStatus').textContent = 'QRコードを枠内に合わせてください';
 
-    await codeReader.decodeFromVideoDevice(
-      selectedDevice ? selectedDevice.deviceId : undefined,
+    // 背面カメラを指定（facingMode: environment）
+    const constraints = {
+      video: { facingMode: { ideal: 'environment' } }
+    };
+
+    await codeReader.decodeFromConstraints(
+      constraints,
       'video',
       (result, err) => {
         if (result) {
