@@ -11,8 +11,6 @@
     background: #f0f4f8;
     min-height: 100vh;
   }
-
-  /* ヘッダー */
   .header {
     background: #1a5276;
     color: white;
@@ -21,71 +19,97 @@
   }
   .header h1 { font-size: 16px; font-weight: bold; }
   .header p  { font-size: 11px; margin-top: 2px; opacity: 0.8; }
-
-  /* メイン */
   .container { padding: 12px; max-width: 480px; margin: 0 auto; }
 
-  /* QRスキャンエリア */
-  .scan-area {
+  .card {
     background: white;
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    text-align: center;
   }
-  .scan-area h2 { font-size: 14px; color: #333; margin-bottom: 12px; }
-  #reader {
+  .card h2 { font-size: 14px; color: #333; margin-bottom: 12px; text-align: center; }
+
+  /* カメラ映像 */
+  #videoContainer {
+    position: relative;
     width: 100%;
-    max-width: 280px;
+    max-width: 300px;
     margin: 0 auto;
     border-radius: 8px;
     overflow: hidden;
+    background: #000;
+    display: none;
   }
-  .scan-btn {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 24px;
-    background: #1a5276;
-    color: white;
+  #video {
+    width: 100%;
+    display: block;
+  }
+  /* スキャン枠 */
+  .scan-frame {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px; height: 200px;
+    border: 3px solid #00e5ff;
+    border-radius: 8px;
+    box-shadow: 0 0 0 2000px rgba(0,0,0,0.4);
+  }
+  .scan-line {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: #00e5ff;
+    animation: scan 2s linear infinite;
+  }
+  @keyframes scan {
+    0%   { top: 0; }
+    100% { top: 100%; }
+  }
+
+  #canvas { display: none; }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
     border: none;
     border-radius: 8px;
     font-size: 14px;
+    font-weight: bold;
     cursor: pointer;
-    width: 100%;
+    margin-top: 10px;
+    text-align: center;
   }
-  .scan-btn:active { background: #154360; }
-  .scan-status {
-    margin-top: 8px;
+  .btn-primary { background: #1a5276; color: white; }
+  .btn-primary:active { background: #154360; }
+  .btn-danger  { background: #c0392b; color: white; }
+  .btn-success { background: #1e8449; color: white; }
+
+  .status {
+    text-align: center;
     font-size: 12px;
     color: #666;
+    margin-top: 8px;
     min-height: 18px;
   }
+  .status.ok  { color: #1e8449; font-weight: bold; }
+  .status.err { color: #c0392b; }
 
-  /* QR読取結果 */
   .qr-result {
     background: #eaf4fb;
     border: 1px solid #aed6f1;
     border-radius: 8px;
     padding: 10px 12px;
     margin-top: 10px;
-    text-align: left;
     display: none;
   }
   .qr-result h3 { font-size: 12px; color: #1a5276; margin-bottom: 6px; }
   .qr-item { font-size: 13px; color: #333; margin: 3px 0; }
   .qr-item span { font-weight: bold; }
 
-  /* 入力フォーム */
-  .form-area {
-    background: white;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    display: none;
-  }
-  .form-area h2 { font-size: 14px; color: #333; margin-bottom: 12px; }
-
+  /* フォーム */
+  .form-area { display: none; }
   .form-group { margin-bottom: 12px; }
   .form-group label {
     display: block;
@@ -112,13 +136,11 @@
     color: #1a5276;
     font-weight: bold;
   }
-
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
-
   .section-title {
     font-size: 12px;
     color: #1a5276;
@@ -128,45 +150,15 @@
     margin: 14px 0 10px;
   }
 
-  /* 送信ボタン */
-  .submit-btn {
-    width: 100%;
-    padding: 14px;
-    background: #1a5276;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 16px;
-  }
-  .submit-btn:active { background: #154360; }
-  .submit-btn:disabled { background: #aaa; }
-
-  /* 完了画面 */
+  /* 完了 */
   .success-area {
-    background: white;
-    border-radius: 12px;
-    padding: 32px 16px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     display: none;
+    text-align: center;
+    padding: 20px 0;
   }
   .success-icon { font-size: 48px; margin-bottom: 12px; }
   .success-area h2 { font-size: 18px; color: #1a5276; margin-bottom: 8px; }
   .success-area p  { font-size: 13px; color: #666; margin-bottom: 4px; }
-  .next-btn {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 32px;
-    background: #1a5276;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
-  }
 </style>
 </head>
 <body>
@@ -178,26 +170,34 @@
 
 <div class="container">
 
-  <!-- QRスキャンエリア -->
-  <div class="scan-area" id="scanArea">
-    <h2>📷 QRコードをスキャンしてください</h2>
-    <div id="reader"></div>
-    <button class="scan-btn" id="scanBtn" onclick="startScan()">カメラを起動してスキャン</button>
-    <div class="scan-status" id="scanStatus">ボタンを押してカメラを起動してください</div>
+  <!-- スキャンエリア -->
+  <div class="card" id="scanArea">
+    <h2>📷 QRコードをスキャン</h2>
+
+    <div id="videoContainer">
+      <video id="video" playsinline autoplay muted></video>
+      <div class="scan-frame"><div class="scan-line"></div></div>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <button class="btn btn-primary" id="startBtn" onclick="startScan()">カメラを起動してスキャン</button>
+    <button class="btn btn-danger"  id="stopBtn"  onclick="stopScan()" style="display:none;">■ スキャンを停止</button>
+    <div class="status" id="scanStatus">ボタンを押してカメラを起動してください</div>
+
     <div class="qr-result" id="qrResult">
       <h3>✅ QR読取完了</h3>
       <div class="qr-item">管理番号：<span id="r_kanriNo"></span></div>
       <div class="qr-item">設置場所：<span id="r_setsuchiName"></span></div>
-      <div class="qr-item">採水員：<span id="r_saisuiName"></span></div>
+      <div class="qr-item">採水員　：<span id="r_saisuiName"></span></div>
       <div class="qr-item">採水業者：<span id="r_tenkenName"></span></div>
     </div>
   </div>
 
   <!-- 入力フォーム -->
-  <div class="form-area" id="formArea">
-    <h2>📝 受付情報を入力してください</h2>
+  <div class="card form-area" id="formArea">
+    <h2>📝 受付情報を入力</h2>
 
-    <div class="section-title">QRから自動入力された情報</div>
+    <div class="section-title">QRから自動入力</div>
     <div class="form-group">
       <label>管理番号</label>
       <input type="text" id="kanriNo" readonly>
@@ -251,86 +251,91 @@
       <input type="text" id="biko" placeholder="任意">
     </div>
 
-    <button class="submit-btn" id="submitBtn" onclick="submitData()">送信する</button>
+    <button class="btn btn-success" id="submitBtn" onclick="submitData()">送信する</button>
   </div>
 
   <!-- 完了画面 -->
-  <div class="success-area" id="successArea">
+  <div class="card success-area" id="successArea">
     <div class="success-icon">✅</div>
     <h2>受付完了！</h2>
     <p id="successKanriNo"></p>
     <p id="successSetsuchi"></p>
-    <button class="next-btn" onclick="resetForm()">次の検体をスキャン</button>
+    <button class="btn btn-primary" onclick="resetForm()" style="margin-top:16px;">次の検体をスキャン</button>
   </div>
 
 </div>
 
-<!-- Html5-QRCode ライブラリ -->
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<!-- ZXing QRコードライブラリ（Safari・Chrome両対応） -->
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 <script>
-// GAS WebアプリのURL（デプロイ後に差し替え）
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxop1fZZrBv05qeq3vL0OU4Bo25qNLPlshpDEs5LbE87Tr_vhphmJhUrXPVTYqXEtpI/exec';
 
-let html5QrCode = null;
-let scanning = false;
+let codeReader = null;
+let scanning   = false;
 
-// QRスキャン開始
-function startScan() {
-  if (scanning) {
-    stopScan();
-    return;
+// スキャン開始
+async function startScan() {
+  try {
+    document.getElementById('scanStatus').textContent  = 'カメラを起動中...';
+    document.getElementById('scanStatus').className    = 'status';
+    document.getElementById('startBtn').style.display  = 'none';
+    document.getElementById('stopBtn').style.display   = 'block';
+    document.getElementById('videoContainer').style.display = 'block';
+
+    codeReader = new ZXing.BrowserQRCodeReader();
+
+    const videoInputDevices = await ZXing.BrowserCodeReader.listVideoInputDevices();
+    // 背面カメラを優先選択
+    const selectedDevice = videoInputDevices.find(d =>
+      d.label.toLowerCase().includes('back') ||
+      d.label.toLowerCase().includes('rear') ||
+      d.label.includes('背面')
+    ) || videoInputDevices[videoInputDevices.length - 1];
+
+    scanning = true;
+    document.getElementById('scanStatus').textContent = 'QRコードを枠内に合わせてください';
+
+    await codeReader.decodeFromVideoDevice(
+      selectedDevice ? selectedDevice.deviceId : undefined,
+      'video',
+      (result, err) => {
+        if (result) {
+          onScanSuccess(result.getText());
+        }
+      }
+    );
+  } catch(e) {
+    document.getElementById('scanStatus').textContent = 'カメラエラー: ' + e.message;
+    document.getElementById('scanStatus').className   = 'status err';
+    document.getElementById('startBtn').style.display = 'block';
+    document.getElementById('stopBtn').style.display  = 'none';
+    document.getElementById('videoContainer').style.display = 'none';
   }
-
-  document.getElementById('scanStatus').textContent = 'カメラを起動中...';
-  document.getElementById('scanBtn').textContent = '■ スキャンを停止';
-
-  html5QrCode = new Html5Qrcode('reader');
-  const config = {
-    fps: 10,
-    qrbox: { width: 220, height: 220 },
-    aspectRatio: 1.0,
-  };
-
-  html5QrCode.start(
-    { facingMode: 'environment' },  // 背面カメラ
-    config,
-    onScanSuccess,
-    onScanError
-  ).catch(err => {
-    document.getElementById('scanStatus').textContent = 'カメラの起動に失敗しました: ' + err;
-    document.getElementById('scanBtn').textContent = 'カメラを起動してスキャン';
-  });
-
-  scanning = true;
 }
-
-// スキャン成功
-function onScanSuccess(decodedText) {
-  stopScan();
-  parseQrText(decodedText);
-}
-
-// スキャンエラー（無視）
-function onScanError(error) {}
 
 // スキャン停止
 function stopScan() {
-  if (html5QrCode && scanning) {
-    html5QrCode.stop().catch(() => {});
-    scanning = false;
-    document.getElementById('scanBtn').textContent = 'カメラを起動してスキャン';
+  if (codeReader) {
+    codeReader.reset();
+    codeReader = null;
   }
+  scanning = false;
+  document.getElementById('videoContainer').style.display = 'none';
+  document.getElementById('startBtn').style.display = 'block';
+  document.getElementById('stopBtn').style.display  = 'none';
+  document.getElementById('scanStatus').textContent = 'ボタンを押してカメラを起動してください';
+  document.getElementById('scanStatus').className   = 'status';
 }
 
-// QRテキストを解析して各フィールドに反映
-function parseQrText(text) {
+// スキャン成功
+function onScanSuccess(text) {
+  stopScan();
+
   const data = {};
   text.split('\n').forEach(line => {
     const idx = line.indexOf(':');
     if (idx > 0) {
-      const key = line.substring(0, idx).trim();
-      const val = line.substring(idx + 1).trim();
-      data[key] = val;
+      data[line.substring(0, idx).trim()] = line.substring(idx + 1).trim();
     }
   });
 
@@ -339,13 +344,14 @@ function parseQrText(text) {
   const saisuiName   = data['採水員']   || '';
   const tenkenName   = data['採水業者'] || '';
 
-  // 読取結果を表示
+  // 読取結果表示
   document.getElementById('r_kanriNo').textContent      = kanriNo;
   document.getElementById('r_setsuchiName').textContent = setsuchiName;
   document.getElementById('r_saisuiName').textContent   = saisuiName;
   document.getElementById('r_tenkenName').textContent   = tenkenName;
   document.getElementById('qrResult').style.display     = 'block';
   document.getElementById('scanStatus').textContent     = '✅ QRコード読取成功！';
+  document.getElementById('scanStatus').className       = 'status ok';
 
   // フォームに反映
   document.getElementById('kanriNo').value      = kanriNo;
@@ -355,11 +361,11 @@ function parseQrText(text) {
 
   // 今日の日付をデフォルト設定
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('saisuiDate').value   = today;
-  document.getElementById('watashiDate').value  = today;
-  document.getElementById('bunsekiDate').value  = today;
+  document.getElementById('saisuiDate').value  = today;
+  document.getElementById('watashiDate').value = today;
+  document.getElementById('bunsekiDate').value = today;
 
-  // フォームエリアを表示
+  // フォーム表示
   document.getElementById('formArea').style.display = 'block';
   document.getElementById('formArea').scrollIntoView({ behavior: 'smooth' });
 }
@@ -385,7 +391,7 @@ async function submitData() {
   };
 
   try {
-    const res = await fetch(GAS_URL, {
+    const res  = await fetch(GAS_URL, {
       method: 'POST',
       body: JSON.stringify(params),
     });
@@ -394,8 +400,8 @@ async function submitData() {
     if (json.status === 'ok') {
       document.getElementById('successKanriNo').textContent  = '管理番号：' + params.kanriNo;
       document.getElementById('successSetsuchi').textContent = '設置場所：' + params.setsuchiName;
-      document.getElementById('scanArea').style.display  = 'none';
-      document.getElementById('formArea').style.display  = 'none';
+      document.getElementById('scanArea').style.display    = 'none';
+      document.getElementById('formArea').style.display    = 'none';
       document.getElementById('successArea').style.display = 'block';
       window.scrollTo(0, 0);
     } else {
@@ -404,30 +410,26 @@ async function submitData() {
       btn.textContent = '送信する';
     }
   } catch(e) {
-    alert('通信エラーが発生しました。\n' + e.message);
+    alert('通信エラー：' + e.message);
     btn.disabled = false;
     btn.textContent = '送信する';
   }
 }
 
-// フォームリセット（次の検体へ）
+// リセット
 function resetForm() {
-  document.getElementById('kanriNo').value      = '';
-  document.getElementById('setsuchiName').value = '';
-  document.getElementById('saisuiName').value   = '';
-  document.getElementById('tenkenName').value   = '';
-  document.getElementById('saisuiDate').value   = '';
-  document.getElementById('saisuiTime').value   = '';
-  document.getElementById('watashiDate').value  = '';
-  document.getElementById('watashiTime').value  = '';
-  document.getElementById('bunsekiDate').value  = '';
-  document.getElementById('bunsekiTime').value  = '';
-  document.getElementById('biko').value         = '';
-  document.getElementById('qrResult').style.display   = 'none';
-  document.getElementById('scanStatus').textContent   = 'ボタンを押してカメラを起動してください';
-  document.getElementById('scanBtn').textContent      = 'カメラを起動してスキャン';
-  document.getElementById('scanArea').style.display   = 'block';
-  document.getElementById('formArea').style.display   = 'none';
+  ['kanriNo','setsuchiName','saisuiName','tenkenName',
+   'saisuiDate','saisuiTime','watashiDate','watashiTime',
+   'bunsekiDate','bunsekiTime','biko'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('qrResult').style.display    = 'none';
+  document.getElementById('scanStatus').textContent    = 'ボタンを押してカメラを起動してください';
+  document.getElementById('scanStatus').className      = 'status';
+  document.getElementById('startBtn').style.display    = 'block';
+  document.getElementById('stopBtn').style.display     = 'none';
+  document.getElementById('scanArea').style.display    = 'block';
+  document.getElementById('formArea').style.display    = 'none';
   document.getElementById('successArea').style.display = 'none';
   window.scrollTo(0, 0);
 }
