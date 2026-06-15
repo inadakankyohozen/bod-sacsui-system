@@ -275,6 +275,9 @@ async function submitData() {
       document.getElementById('scanArea').style.display    = 'none';
       document.getElementById('formArea').style.display    = 'none';
       document.getElementById('successArea').style.display = 'block';
+      // ボタンを必ず元に戻す
+      btn.disabled = false;
+      btn.textContent = '送信する';
       window.scrollTo(0, 0);
     } else {
       alert('送信エラー：' + json.message);
@@ -290,11 +293,17 @@ async function submitData() {
 
 // リセット
 function resetForm() {
+  // 全フィールドクリア
   ['kanriNo','setsuchiName','saisuiName','tenkenName',
    'saisuiDate','saisuiTime','watashiDate','watashiTime',
    'bunsekiDate','bunsekiTime','biko'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  // 送信ボタンを確実にリセット
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false;
+  btn.textContent = '送信する';
+  // 表示リセット
   document.getElementById('qrResult').style.display    = 'none';
   document.getElementById('scanStatus').textContent    = 'ボタンを押してカメラを起動してください';
   document.getElementById('scanStatus').className      = 'status';
@@ -303,6 +312,10 @@ function resetForm() {
   document.getElementById('scanArea').style.display    = 'block';
   document.getElementById('formArea').style.display    = 'none';
   document.getElementById('successArea').style.display = 'none';
+  // カメラストリームも確実に停止
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  scanning = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
   window.scrollTo(0, 0);
 }
 </script>
