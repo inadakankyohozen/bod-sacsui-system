@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BOD採水受付 - 千葉県浄化槽検査センター</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif; background:#f0f4f8; min-height:100vh; }
+  .header { background:#1b5e20; color:white; padding:12px 16px; text-align:center; }
+  .header h1 { font-size:16px; font-weight:bold; }
+  .header p  { font-size:11px; margin-top:2px; opacity:0.8; }
+  .container { padding:12px; max-width:480px; margin:0 auto; }
+  .card { background:white; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  .card h2 { font-size:14px; color:#333; margin-bottom:12px; text-align:center; }
+
+  #videoWrap {
+    position:relative; width:100%; max-width:300px;
+    margin:0 auto; border-radius:8px; overflow:hidden;
+    background:#000; display:none;
+  }
+  #video { width:100%; display:block; }
+  .scan-frame {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:180px; height:180px;
+    border:3px solid #69f0ae; border-radius:8px;
+    box-shadow:0 0 0 2000px rgba(0,0,0,0.45);
+  }
+  .scan-line {
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background:#69f0ae; animation:scanline 1.5s linear infinite;
+  }
+  @keyframes scanline { 0%{top:0} 100%{top:100%} }
+  #canvas { display:none; }
+
+  .btn { display:block; width:100%; padding:12px; border:none; border-radius:8px;
+         font-size:14px; font-weight:bold; cursor:pointer; margin-top:10px; text-align:center; }
+  .btn-primary { background:#1b5e20; color:white; }
+  .btn-danger  { background:#c0392b; color:white; }
+  .btn-success { background:#1e8449; color:white; }
+  .btn:disabled { background:#aaa; }
+
+  .status { text-align:center; font-size:12px; color:#666; margin-top:8px; min-height:18px; }
+  .status.ok  { color:#1e8449; font-weight:bold; }
+  .status.err { color:#c0392b; }
+
+  .qr-result { background:#e8f5e9; border:1px solid #a5d6a7; border-radius:8px;
+               padding:10px 12px; margin-top:10px; display:none; }
+  .qr-result h3 { font-size:12px; color:#1b5e20; margin-bottom:6px; }
+  .qr-item { font-size:13px; color:#333; margin:3px 0; }
+  .qr-item span { font-weight:bold; }
+
+  .form-area { display:none; }
+  .form-group { margin-bottom:12px; }
+  .form-group label { display:block; font-size:11px; color:#666; margin-bottom:4px; font-weight:bold; }
+  .form-group input { width:100%; padding:10px 12px; border:1px solid #ddd;
+                      border-radius:8px; font-size:14px; background:#fafafa; }
+  .form-group input:focus { outline:none; border-color:#1b5e20; background:white; }
+  .form-group input[readonly] { background:#e8f5e9; color:#1b5e20; font-weight:bold; }
+  .section-title { font-size:12px; color:#1b5e20; font-weight:bold;
+                   border-bottom:1px solid #a5d6a7; padding-bottom:4px; margin:14px 0 10px; }
+
+  .success-area { display:none; text-align:center; padding:20px 0; }
+  .success-icon { font-size:48px; margin-bottom:12px; }
+  .success-area h2 { font-size:18px; color:#1b5e20; margin-bottom:8px; }
+  .success-area p  { font-size:13px; color:#666; margin-bottom:4px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📋 BOD採水受付システム</h1>
+  <p>（公社）千葉県浄化槽検査センター</p>
+</div>
+<div class="container">
+
+  <!-- スキャンエリア -->
+  <div class="card" id="scanArea">
+    <h2>📷 QRコードをスキャン</h2>
+    <div id="videoWrap">
+      <video id="video" playsinline autoplay muted></video>
+      <div class="scan-frame"><div class="scan-line"></div></div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <button class="btn btn-primary" id="startBtn" onclick="startScan()">カメラを起動してスキャン</button>
+    <button class="btn btn-danger"  id="stopBtn"  onclick="stopScan()" style="display:none;">■ 停止</button>
+    <div class="status" id="scanStatus">ボタンを押してカメラを起動してください</div>
+    <div class="qr-result" id="qrResult">
+      <h3>✅ QR読取完了</h3>
+      <div class="qr-item">管理番号：<span id="r_kanriNo"></span></div>
+      <div class="qr-item">設置場所：<span id="r_setsuchiName"></span></div>
+      <div class="qr-item">採水員　：<span id="r_saisuiName"></span></div>
+    </div>
+  </div>
+
+  <!-- フォーム（確認のみ・送信ボタンのみ） -->
+  <div class="card form-area" id="formArea">
+    <h2>📝 内容確認して送信</h2>
+    <div class="section-title">QRから自動入力</div>
+    <div class="form-group"><label>管理番号</label><input type="text" id="kanriNo" readonly></div>
+    <div class="form-group"><label>設置場所名称</label><input type="text" id="setsuchiName" readonly></div>
+    <div class="form-group"><label>採水員名</label><input type="text" id="saisuiName" readonly></div>
+    <button class="btn btn-success" id="submitBtn" onclick="submitData()">送信する</button>
+  </div>
+
+  <!-- 完了 -->
+  <div class="card success-area" id="successArea">
+    <div class="success-icon">✅</div>
+    <h2>受付完了！</h2>
+    <p id="successKanriNo"></p>
+    <p id="successSetsuchi"></p>
+    <button class="btn btn-primary" onclick="resetForm()" style="margin-top:16px;">次の検体をスキャン</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxu8PAuYRtBonFRno_0S85waCwf_Y1Tz3nD3ZC-C9tdGUkHL7PgNZRz-1LA-gBFoSBs/exec';
+
+let stream   = null;
+let scanning = false;
+let rafId    = null;
+
+async function startScan() {
+  try {
+    document.getElementById('scanStatus').textContent = 'カメラを起動中...';
+    document.getElementById('scanStatus').className   = 'status';
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display  = 'block';
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+
+    const video = document.getElementById('video');
+    video.srcObject = stream;
+    await video.play();
+
+    document.getElementById('videoWrap').style.display = 'block';
+    document.getElementById('scanStatus').textContent  = 'QRコードを枠内に合わせてください';
+    scanning = true;
+    requestAnimationFrame(tick);
+  } catch(e) {
+    document.getElementById('scanStatus').textContent = 'カメラエラー: ' + e.message;
+    document.getElementById('scanStatus').className   = 'status err';
+    document.getElementById('startBtn').style.display = 'block';
+    document.getElementById('stopBtn').style.display  = 'none';
+  }
+}
+
+function tick() {
+  if (!scanning) return;
+  const video  = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx  = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+    if (code) { onScanSuccess(code.data); return; }
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+function stopScan() {
+  scanning = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  document.getElementById('videoWrap').style.display = 'none';
+  document.getElementById('startBtn').style.display  = 'block';
+  document.getElementById('stopBtn').style.display   = 'none';
+  document.getElementById('scanStatus').textContent  = 'ボタンを押してカメラを起動してください';
+  document.getElementById('scanStatus').className    = 'status';
+}
+
+function onScanSuccess(text) {
+  stopScan();
+  const data = {};
+  text.split('\n').forEach(line => {
+    const idx = line.indexOf(':');
+    if (idx > 0) data[line.substring(0, idx).trim()] = line.substring(idx + 1).trim();
+  });
+
+  const kanriNo      = data['管理番号'] || '';
+  const setsuchiName = data['設置場所'] || '';
+  const saisuiName   = data['採水員']   || '';
+
+  document.getElementById('r_kanriNo').textContent      = kanriNo;
+  document.getElementById('r_setsuchiName').textContent = setsuchiName;
+  document.getElementById('r_saisuiName').textContent   = saisuiName;
+  document.getElementById('qrResult').style.display     = 'block';
+  document.getElementById('scanStatus').textContent     = '✅ QRコード読取成功！';
+  document.getElementById('scanStatus').className       = 'status ok';
+
+  document.getElementById('kanriNo').value      = kanriNo;
+  document.getElementById('setsuchiName').value = setsuchiName;
+  document.getElementById('saisuiName').value   = saisuiName;
+
+  document.getElementById('formArea').style.display = 'block';
+  document.getElementById('formArea').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function submitData() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  const params = {
+    kanriNo:      document.getElementById('kanriNo').value,
+    setsuchiName: document.getElementById('setsuchiName').value,
+    saisuiName:   document.getElementById('saisuiName').value,
+  };
+
+  try {
+    const res  = await fetch(GAS_URL, { method:'POST', body:JSON.stringify(params) });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      document.getElementById('successKanriNo').textContent  = '管理番号：' + params.kanriNo;
+      document.getElementById('successSetsuchi').textContent = '設置場所：' + params.setsuchiName;
+      document.getElementById('scanArea').style.display    = 'none';
+      document.getElementById('formArea').style.display    = 'none';
+      document.getElementById('successArea').style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = '送信する';
+      window.scrollTo(0, 0);
+    } else {
+      alert('送信エラー：' + json.message);
+      btn.disabled = false;
+      btn.textContent = '送信する';
+    }
+  } catch(e) {
+    alert('通信エラー：' + e.message);
+    btn.disabled = false;
+    btn.textContent = '送信する';
+  }
+}
+
+function resetForm() {
+  ['kanriNo','setsuchiName','saisuiName'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false;
+  btn.textContent = '送信する';
+  document.getElementById('qrResult').style.display    = 'none';
+  document.getElementById('scanStatus').textContent    = 'カメラを起動中...';
+  document.getElementById('scanStatus').className      = 'status';
+  document.getElementById('startBtn').style.display    = 'none';
+  document.getElementById('stopBtn').style.display     = 'block';
+  document.getElementById('scanArea').style.display    = 'block';
+  document.getElementById('formArea').style.display    = 'none';
+  document.getElementById('successArea').style.display = 'none';
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  scanning = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  window.scrollTo(0, 0);
+  // 自動でカメラ起動
+  startScan();
+}
+</script>
+</body>
+</html>
