@@ -291,7 +291,7 @@ async function submitData() {
   }
 }
 
-// リセット
+// リセット＆自動カメラ起動
 function resetForm() {
   // 全フィールドクリア
   ['kanriNo','setsuchiName','saisuiName','tenkenName',
@@ -305,18 +305,20 @@ function resetForm() {
   btn.textContent = '送信する';
   // 表示リセット
   document.getElementById('qrResult').style.display    = 'none';
-  document.getElementById('scanStatus').textContent    = 'ボタンを押してカメラを起動してください';
+  document.getElementById('scanStatus').textContent    = 'カメラを起動中...';
   document.getElementById('scanStatus').className      = 'status';
-  document.getElementById('startBtn').style.display    = 'block';
-  document.getElementById('stopBtn').style.display     = 'none';
+  document.getElementById('startBtn').style.display    = 'none';
+  document.getElementById('stopBtn').style.display     = 'block';
   document.getElementById('scanArea').style.display    = 'block';
   document.getElementById('formArea').style.display    = 'none';
   document.getElementById('successArea').style.display = 'none';
-  // カメラストリームも確実に停止
+  // カメラストリームを停止してから再起動
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
   scanning = false;
   if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
   window.scrollTo(0, 0);
+  // 自動でカメラ起動
+  startScan();
 }
 </script>
 </body>
